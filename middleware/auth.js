@@ -1,6 +1,6 @@
 const { verifyJwt } = require('../utils/jwt')
-let {Access} = require("../model/roleAccess")
 const {Users} = require("../model");
+const {Access,roleAccess} = require("../model/roleAccess");
 let operationAccess = {
     "POST":"WRITE",
     "DELETE":"WRITE",
@@ -8,7 +8,8 @@ let operationAccess = {
     "PUT":"WRITE"
 }
 async function userAuthorization(req, res, next) {
-    const auth = req.header('Authorization')
+    const auth = (req.cookies.token) ? req.cookies.token :req.header('Authorization')
+
     if (!auth) {
         next(new Error('Only for logged in users'))
         return
@@ -23,23 +24,33 @@ async function userAuthorization(req, res, next) {
     try {
         const user = await verifyJwt(token)
         req.user = user
+
         await checkAccess(req.method,user.roleName)
+        next()
     } catch (err) {
-        next(new Error('JWT verification failed'))
+        next(err)
     }
 
 }
 async function  checkAccess(method,roleName){
     return new Promise(async (resolve,reject)=>{
-        const access = await Access.findOne({
-            attributes: ['accessName'],
-            where: {
-                roleName: roleName,
-                accessName:operationAccess.method
-            }
-        })
-        if(!access) reject('Operation not permitted for this role')
-        resolve(true)
+        try{
+            //TODO query DB to check access of user
+           /* const access = await roleAccess.findOne({
+                attributes: ['accessName'],
+                where: {
+                    roleName: roleName,
+                    accessName:operationAccess[method]
+                }
+            })*/
+
+            if(roleName != "ADMIN" && operationAccess[method] == "WRITE") reject('Operation not permitted for this role')
+            resolve(true)
+        }catch (err){
+            console.log(err)
+            reject(err)
+        }
+
     })
 
 

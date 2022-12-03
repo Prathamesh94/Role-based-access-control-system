@@ -43,7 +43,7 @@ async  function verifyUser(userOpts){
     }
 
     const user = await Users.findOne({
-        attributes: ['email', 'username','password'],
+        attributes: ['email', 'username','password','roleName'],
         where: {
             email: userOpts.email,
         }
@@ -66,34 +66,28 @@ async  function verifyUser(userOpts){
 
 }
 
-async function deleteUser(userOpts){
-    if (!userOpts.email) {
+async function deleteUser(email){
+    if (!email) {
         throw new Error('Did not supply email')
     }
     const user = await Users.findOne({
         attributes: ['email', 'username','password'],
         where: {
-            email: userOpts.email,
+            email: email,
+            roleName: "NON-ADMIN"
         }
     })
     user.destroy()
-    return userOpts
+    return {email:email}
 
 }
 async function getUserlist(){
-    if(!userId){
-        let userIdMissingError = new Error("User Id is Missing")
-        throw userIdMissingError
-    }
 
     const user = await Users.findAll({
-        attributes:['email','username'],
-        where:{
-            username:userId
-        }
+        attributes:['email','username']
 
     })
-    return {...user.get()}
+    return {...user}
 }
 module.exports = {
     createUser,verifyUser,getUserlist,deleteUser

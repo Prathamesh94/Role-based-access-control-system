@@ -24,7 +24,7 @@ const Access = db.define('access', {
         primaryKey:true
     }
 });
-
+const roleAccess = db.define('roleAccess', {}, { timestamps: false });
 module.exports = {
-    Role,Access,rolesList,accessList,roleAccessMapping
+    Role,Access,rolesList,accessList,roleAccessMapping,roleAccess
 }

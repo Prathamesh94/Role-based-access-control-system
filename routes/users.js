@@ -4,30 +4,32 @@ const {userAuthorization} = require("../middleware/auth");
 var router = express.Router();
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
+router.get('/',userAuthorization, async function(req, res, next) {
   try{
-    let userList = getUserlist()
+    let userList = await getUserlist()
     res.send(userList);
   }catch (err){
     next(err)
   }
 });
-//TODO provide access to resource based on role
+
 //Only admin can access delete method and we can delete only non-admin account
-router.delete('/:id', function(req, res, next) {
+router.delete('/:id',userAuthorization, async function(req, res, next) {
   try{
-    let deletedUser = deleteUser(req.params.id)
-    res.send(deletedUser);
+      let deletedUser = await deleteUser(req.params.id)
+    let userList = await getUserlist()
+    res.render('userList', {title: 'user list',users:userList});
   }catch (err){
     next(err)
   }
 });
-//TODO provide access to resource based on role
+
 //Only admin can access post method
 router.post('/',userAuthorization, async function (req, res, next) {
   try{
-    const user = await createUser(req.body.user,req.body.role)
-    res.send(user);
+    const user = await createUser(req.body,req.body.role)
+    let userList = await getUserlist()
+    res.render('userList', {title: 'user list',users:userList});
   }catch (err){
     next(err)
   }
@@ -35,8 +37,11 @@ router.post('/',userAuthorization, async function (req, res, next) {
 });
 router.post('/login', async (req, res,next) => {
   try {
-    const verifiedUser = await verifyUser(req.body.user)
-    res.send(verifiedUser)
+    const verifiedUser = await verifyUser(req.body)
+    let userList = await getUserlist()
+    res.cookie('token', "Token "+verifiedUser.token, { httpOnly: true });
+    res.render('userList', {title: 'user list',users:userList,verifiedUser:verifiedUser});
+    //res.send(verifiedUser)
   } catch (err) {
     next(err)
   }

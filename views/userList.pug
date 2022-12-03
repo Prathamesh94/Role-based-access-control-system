@@ -1,0 +1,33 @@
+doctype html
+html
+  head
+    title= title
+    script(src='/javascripts/javascript.js')
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    each user in users
+        p= user.email + " " + user.username + "  "
+        button(type='button', onclick='deleteUser("'+ user.email +'")' ) Delete User
+    <div class="CreateUser">
+        <h1>CreateUser</h1>
+        <form action="/users" method="post">
+
+            p= "UserName"
+            <input type="text" name="username" placeholder="text" id="username" required>
+
+            p= "Email"
+            <input type="text" name="email" placeholder="email" id="email" required>
+
+            p= "Password"
+            <input type="password" name="password" placeholder="Password" id="password" required>
+
+            p= "Role"
+            <input type="text" name="roleName" placeholder="text" id="roleName" required>
+
+             p= "MobileNumber"
+            <input type="text" name="mobileNumber" placeholder="text" id="mobileNumber" required>
+            p
+            <input type="submit" value="CreateUser">
+        </form>
+    </div>
+  body
+    block content
